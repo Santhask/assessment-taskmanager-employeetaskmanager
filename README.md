@@ -1,252 +1,268 @@
-# Task Manager — Java Core
+# 🧑‍💼 Employee Task Manager — Spring MVC
 
-**Custom LinkedList + Multithreading Assessment**
+A full-featured **Employee Task Management System** built using the Spring Framework with MVC architecture. The application supports complete CRUD operations for both employees and tasks, with PostgreSQL as the database and Spring IoC container for dependency injection and bean management.
 
 ---
 
-## 📌 Project Overview
+## 🧰 Technologies Used
 
-This is a **Java Core console-based application** designed to manage tasks using a **custom singly linked list**.
-It supports complete CRUD operations and demonstrates **multithreading with proper synchronization**.
+| Layer | Technology |
+|---|---|
+| Language | Java |
+| Framework | Spring MVC (Spring Framework) |
+| IoC / DI | Spring Container (ApplicationContext) |
+| ORM | Hibernate (JPA) |
+| Database | PostgreSQL |
+| View Technology | JSP (JavaServer Pages) |
+| Server | Apache Tomcat v10.1 |
+| Build Tool | Maven (`pom.xml`) |
+| IDE | Eclipse IDE |
+| JDK | Java JDK 22 |
 
-* **Language:** Java (Core)
-* **Technology:** Java SE (No frameworks)
-* **Architecture:** OOP (4 packages, 5 classes)
-* **Storage:** Custom Singly Linked List (No `java.util.LinkedList`)
-* **Threading:** 2 Worker Threads
-* **Synchronization:** `synchronized` methods & blocks
+---
+
+## 🏗️ Architecture
+
+The project follows a clean **layered MVC architecture** with Spring's IoC container managing all object creation and dependency injection:
+
+```
+Client Request
+     ↓
+DispatcherServlet (Spring MVC Front Controller)
+     ↓
+Controller Layer  →  Service Layer  →  DAO Layer  →  PostgreSQL DB
+     ↓
+JSP View (Response)
+```
+
+- **Spring Container** handles all bean creation (`@Component`, `@Service`, `@Repository`, `@Controller`)
+- **Hibernate + JPA** manages ORM and database transactions
+- **DispatcherServlet** routes all HTTP requests
 
 ---
 
 ## 📂 Project Structure
 
 ```
-src/
-└── com/
-    └── task/
-        ├── entity/
-        │   └── Task.java
-        ├── linkedlist/
-        │   ├── Node.java
-        │   └── TaskLinkedList.java
-        ├── ser/
-        │   └── TaskProcess.java
-        └── main/
-            └── MainApp.java
+EmployeeTaskManager/
+├── src/
+│   ├── main/
+│   │   ├── java/
+│   │   │   └── com/assessment/taskmanager/
+│   │   │       ├── config/
+│   │   │       │   ├── AppConfig.java          # Spring Application Configuration
+│   │   │       │   ├── WebConfig.java          # Spring MVC Web Configuration
+│   │   │       │   └── WebInitializer.java     # Replaces web.xml (Servlet initializer)
+│   │   │       ├── controller/
+│   │   │       │   ├── EmployeeController.java # Handles employee HTTP requests
+│   │   │       │   └── TaskController.java     # Handles task HTTP requests
+│   │   │       ├── dao/
+│   │   │       │   ├── EmployeeDao.java        # Employee DB operations
+│   │   │       │   └── TaskDao.java            # Task DB operations
+│   │   │       ├── entity/
+│   │   │       │   ├── Employee.java           # Employee JPA Entity
+│   │   │       │   └── Task.java               # Task JPA Entity
+│   │   │       └── service/
+│   │   │           ├── EmployeeService.java    # Employee business logic
+│   │   │           └── TaskService.java        # Task business logic
+│   │   ├── resources/                          # App properties / Hibernate config
+│   │   └── webapp/
+│   │       ├── WEB-INF/
+│   │       │   └── views/
+│   │       │       ├── employee-form.jsp       # Add/Edit employee form
+│   │       │       ├── employee-list.jsp       # View all employees
+│   │       │       ├── task-form.jsp           # Add/Edit task form
+│   │       │       ├── task-list.jsp           # View all tasks
+│   │       │       └── task-status.jsp         # Update task status
+│   │       └── index.jsp                       # Landing/home page
+│   └── test/
+│       ├── java/
+│       └── resources/
+├── target/                                     # Compiled build output
+├── pom.xml                                     # Maven dependencies
+└── Deployed Resources/
 ```
 
 ---
 
-## 🧠 Class Responsibilities
+## ⚙️ Features
 
-### 🔹 Task.java
+### 👤 Employee Management
+- ➕ Add new employee (Name, Email, Department, Designation)
+- 📋 View all employees in a tabular list
+- ✏️ Edit employee details
+- 🗑️ Delete employee
 
-* Represents a task entity
-* Fields:
-
-  * `taskId` (int)
-  * `taskName` (String)
-  * `priority` (HIGH / MEDIUM / LOW)
-  * `status` (PENDING / IN_PROGRESS / COMPLETED)
-
----
-
-### 🔹 Node.java
-
-* Wrapper class for linked list node
-* Contains:
-
-  * `Task data`
-  * `Node next`
+### 📝 Task Management
+- ➕ Add new task (Title, Description, Priority, Status)
+- 👤 Assign tasks to employees
+- 📋 View all tasks with priority and status indicators
+- ✏️ Edit task details
+- 🔄 Update task status (e.g., `IN_PROGRESS`, `DONE`)
+- 🗑️ Delete task
 
 ---
 
-### 🔹 TaskLinkedList.java
+## 🗄️ Database Configuration
 
-Custom singly linked list implementation with thread safety:
+**Database:** PostgreSQL
 
-* `addTask(Task task)`
-* `deleteTask(int taskId)`
-* `searchTask(int taskId)`
-* `displayTasks()`
-* `reverseTasks()`
-* `getTaskCount()`
-* `getPendingTask()` (atomic operation)
+### Create Database
 
----
-
-### 🔹 TaskProcess.java
-
-* Extends `Thread`
-* Picks pending tasks and processes them
-* Simulates processing using:
-
-  ```java
-  Thread.sleep(1000);
-  ```
-
----
-
-### 🔹 MainApp.java
-
-* Entry point of application
-* Provides menu-driven interface
-* Manages thread execution
-
----
-
-## ⚙️ Setup & Execution
-
-### ✅ Prerequisites
-
-* Java 8 or above
-* Eclipse / IntelliJ (optional)
-
----
-
-### ▶️ Compile (Command Line)
-
+```sql
+CREATE DATABASE employee_db;
 ```
-cd src
-javac com/task/main/MainApp.java
+
+### Employee Table
+
+```sql
+CREATE TABLE employee (
+    id          SERIAL PRIMARY KEY,
+    name        VARCHAR(100),
+    email       VARCHAR(100),
+    department  VARCHAR(100),
+    designation VARCHAR(100)
+);
+```
+
+### Task Table
+
+```sql
+CREATE TABLE task (
+    id          SERIAL PRIMARY KEY,
+    title       VARCHAR(200),
+    description TEXT,
+    priority    VARCHAR(20),
+    status      VARCHAR(20),
+    employee_id INT REFERENCES employee(id)
+);
+```
+
+### DB Connection (in `AppConfig.java`)
+
+```java
+String url      = "jdbc:postgresql://localhost:5432/employee_db";
+String username = "postgres";
+String password = "root";
 ```
 
 ---
 
-### ▶️ Run
+## 🔧 Spring Container Configuration
+
+Object creation and dependency injection are managed entirely by the **Spring IoC Container**:
+
+```java
+// AppConfig.java
+@Configuration
+@ComponentScan(basePackages = "com.assessment.taskmanager")
+@EnableTransactionManagement
+public class AppConfig {
+    // DataSource, SessionFactory, TransactionManager beans defined here
+}
+
+// WebConfig.java
+@Configuration
+@EnableWebMvc
+public class WebConfig implements WebMvcConfigurer {
+    // ViewResolver and static resource configuration
+}
+
+// WebInitializer.java — replaces web.xml
+public class WebInitializer extends AbstractAnnotationConfigDispatcherServletInitializer {
+    // Registers DispatcherServlet programmatically
+}
+```
+
+---
+
+## 🔌 Setup Instructions
+
+### Prerequisites
+- JDK 22+
+- Apache Tomcat 10.1
+- PostgreSQL installed and running
+- Eclipse IDE with Spring Tools / Maven support
+
+### 1. Clone the Repository
+
+```bash
+git clone <your-repo-link>
+cd EmployeeTaskManager
+```
+
+### 2. Import into Eclipse
+
+- Open **Eclipse IDE**
+- Go to `File` → `Import` → `Maven` → `Existing Maven Projects`
+- Select the cloned project folder
+
+### 3. Configure Database
+
+Update DB credentials in `AppConfig.java`:
+
+```java
+url      = "jdbc:postgresql://localhost:5432/employee_db";
+username = "postgres";
+password = "root";
+```
+
+### 4. Deploy to Tomcat
+
+- Right-click project → `Run As` → `Run on Server`
+- Select **Apache Tomcat v10.1**
+- Deploy and start the server
+
+---
+
+## ▶️ Run the Application
+
+Once the server starts, open your browser:
 
 ```
-java com.task.main.MainApp
+http://localhost:8080/EmployeeTaskManager/
 ```
-
----
-
-### ▶️ Run in IDE
-
-* Import project as Java Project
-* Set `src` as source folder
-* Run `MainApp.java`
-
----
-
-## 📋 Features
-
-* Add Task
-* Delete Task
-* Search Task
-* Display All Tasks
-* Reverse Task List
-* Get Task Count
-* Multithreaded Task Processing
-
----
-
-## 🧵 Multithreading & Synchronization
-
-### 🔸 Problem
-
-Multiple threads accessing a shared list can cause **race conditions**.
-
-### 🔸 Solution
-
-* All list methods are declared `synchronized`
-* `getPendingTask()` ensures atomic operation
-* Additional `synchronized` block used in thread execution
-
-### 🔸 Result
-
-* Thread-safe processing
-* No duplicate task execution
 
 ---
 
 ## ⚠️ Assumptions & Limitations
 
-### Assumptions
-
-* Task IDs are unique
-* User input is valid
-
-### Limitations
-
-* No validation for duplicate IDs
-* Uses `String` instead of `Enum`
-* Operations are O(n)
-
-### Known Issues
-
-* Minor naming inconsistency (`getTaskCounts` → should be `getTaskCount`)
-* Minor spelling issues
-* Uses `System.err` for menu display
+- Basic input validation only — no server-side bean validation (`@Valid`)
+- No user authentication or role-based access control
+- Designed for **local development** only
+- No REST API — uses traditional Spring MVC form submissions
 
 ---
 
-## 🚀 Possible Improvements
+## 🚀 Future Enhancements
 
-* Add input validation
-* Use Enums for priority & status
-* Implement `wait()` / `notify()` for better threading
-* Add persistence (file/database)
-* Add unit testing
-
----
-
-# **Sample Output **
-
- 
-
-## **Adding Tasks (Option 1 × 3)**
-
-| 📟 **Console 			Output** 			  			 			Enter 			ID: 101 			Enter 			Name: Review Case File 			Enter 			Priority: HIGH 			Sucessfully 			Added the Task 			  			 			Enter 			ID: 102 			Enter 			Name: Generate Report 			Enter 			Priority: MEDIUM 			Sucessfully 			Added the Task 			  			 			Enter 			ID: 103 			Enter 			Name: Upload Documents 			Enter 			Priority: LOW 			Sucessfully 			Added the Task |
-| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-
-
-  
-
-## ** Display All Tasks (Option 4)**
-
-| 📟 **Console 			Output** 			  			 			101 			- Review Case File - HIGH - PENDING 			102 			- Generate Report - MEDIUM - PENDING 			103 			- Upload Documents - LOW - PENDING |
-| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-
-## ** Search Task (Option 3)**
-
-| 📟 **Console 			Output** 			  			 			Enter 			ID: 102 			102 			- Generate Report - MEDIUM - PENDING 			  			 			Enter 			ID: 999 			Not 			Found |
-| ------------------------------------------------------------------------------------------------------------------------------------------------- |
-
-## **Get Task Count (Option 6)**
-
-| 📟 **Console 			Output** 			 3 |
-| ------------------------------ |
-
-## **  Reverse Task List (Option 5) → then Display (Option 4)**
-
-| 📟 **Console 			Output** 			  			 			103 			- Upload Documents - LOW - PENDING 			102 			- Generate Report - MEDIUM - PENDING 			101 			- Review Case File - HIGH - PENDING |
-| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-
-## **  Delete Task (Option 2)**
-
-| 📟 **Console 			Output** 			  			 			Enter 			ID: 102 			Task 			Deleted Successfully |
-| ------------------------------------------------------------------------------------- |
-
-
-  
-
-## **Start Task Processing — Multithreaded (Option 7)**
-
-| 📟 **Console 			Output** 			  			 			Starting 			Task Processing....... 			  			 			Worker-1 			processing Task ID: 101 			Worker-2 			processing Task ID: 102 			  			 			Worker-1 			completed Task ID: 101 			Worker-2 			completed Task ID: 102 			Worker-1 			processing Task ID: 103 			Worker-1 			completed Task ID: 103 			  			 			All 			Tasks  Completed |
-| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-
-
-  
+- [ ] Add Spring Security for login & role-based authentication
+- [ ] Migrate to **Spring Boot** for auto-configuration
+- [ ] Expose **REST APIs** with `@RestController`
+- [ ] Integrate **React / Angular** as a frontend
+- [ ] Add **pagination** to employee and task lists
+- [ ] Implement bean validation with `@Valid` + `BindingResult`
 
 ---
 
-## ✅ Status
+## ✅ Project Status
 
-✔ All requirements implemented
-✔ Custom LinkedList used
-✔ Multithreading implemented
-✔ Thread-safe execution
-✔ No external libraries used
+| Feature | Status |
+|---|---|
+| Spring MVC Setup | ✔ Complete |
+| Spring Container (IoC/DI) | ✔ Configured |
+| Hibernate + JPA Integration | ✔ Working |
+| PostgreSQL Connection | ✔ Connected |
+| Employee CRUD | ✔ Implemented |
+| Task CRUD | ✔ Implemented |
+| Task Status Update | ✔ Working |
+| Task Assignment to Employee | ✔ Working |
+| Tomcat Deployment | ✔ Successful |
 
 ---
+
+## 👨‍💻 Author
+
+**Project:** EmployeeTaskManager  
+**Package:** `com.assessment.taskmanager`  
+**Server Runtime:** Apache Tomcat v10.1 @ `localhost:8080`
